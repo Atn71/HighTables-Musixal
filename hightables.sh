@@ -80,14 +80,18 @@ add_single_rule() {
         validate_ip $dest_ip && break
     done
     while true; do
-        read -p "Enter port: " port
-        validate_port $port && break
+        read -p "Enter source port: " src_port
+        validate_port $src_port && break
+    done
+    while true; do
+        read -p "Enter destination port: " dst_port
+        validate_port $dst_port && break
     done
     while true; do
         read -p "Enter transport protocol (tcp/udp): " transport
         validate_transport $transport && break
     done
-    sudo iptables -A INPUT -p $transport --dport $port -d $dest_ip -j ACCEPT
+    sudo iptables -A INPUT -p $transport --sport $src_port --dport $dst_port -d $dest_ip -j ACCEPT
     sudo iptables-save | sudo tee /etc/iptables/rules.v4 > /dev/null
     echo -e "${GREEN}Rule added and saved successfully.${NC}"
     read -p "Press Enter to continue..."
@@ -101,14 +105,18 @@ add_range_rule() {
         validate_ip $dest_ip && break
     done
     while true; do
-        read -p "Enter port range (format: start:end): " port_range
-        validate_port_range $port_range && break
+        read -p "Enter source port range (format: start:end): " src_port_range
+        validate_port_range $src_port_range && break
+    done
+    while true; do
+        read -p "Enter destination port range (format: start:end): " dst_port_range
+        validate_port_range $dst_port_range && break
     done
     while true; do
         read -p "Enter transport protocol (tcp/udp): " transport
         validate_transport $transport && break
     done
-    sudo iptables -A INPUT -p $transport --dport $port_range -d $dest_ip -j ACCEPT
+    sudo iptables -A INPUT -p $transport --sport $src_port_range --dport $dst_port_range -d $dest_ip -j ACCEPT
     sudo iptables-save | sudo tee /etc/iptables/rules.v4 > /dev/null
     echo -e "${GREEN}Rule added and saved successfully.${NC}"
     read -p "Press Enter to continue..."
@@ -156,8 +164,8 @@ delete_all_rules() {
 while true; do
     display_logo
     echo -e "${MAGENTA}"
-    echo "1) Add rule for single IP and port"
-    echo "2) Add rule for IP and port range"
+    echo "1) Add rule for single IP and ports"
+    echo "2) Add rule for IP and port ranges"
     echo "3) View and remove rules"
     echo "4) Delete all rules"
     echo "5) Exit"
